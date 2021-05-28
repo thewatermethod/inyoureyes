@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 
-const chalk = require("chalk");
-const boxen = require("boxen");
-const yargs = require("yargs");
+const chalk = require("chalk")
+const boxen = require("boxen")
+const yargs = require("yargs")
 const { hideBin } = require('yargs/helpers')
 
-const getScreenshot = require('./getScreenshot');
-const CONDITIONS = require('./conditions');
+const getScreenshot = require('./getScreenshot')
+const CONDITIONS = require('./conditions')
+const LYRICS = require('./lyrics')
 
 
 const options = yargs
@@ -32,32 +33,63 @@ const options = yargs
         alias: "path", 
         describe: "directory path to save screenshot", 
         type: 'string',
+    })
+    .usage("Usage: -l <lyrics>").option("l", 
+    { 
+        alias: "lyrics", 
+        describe: "instead of helpful info, print lyrics as well as screenshot", 
+        type: 'string',
     }).argv
 
 const argv = yargs(hideBin(process.argv)).argv
 
 const website = argv.w
 const condition = argv.c
-
+const printLyrics = argv.l;
 
 getScreenshot(website, condition).then( (value)=> {
 
-    let message = chalk.white.bold(value)
+    let text = value
 
     if( condition == 'all' ){
-        message = chalk.white.bold('Your screenshots are pending') 
+        text = 'Your screenshots are pending'
     }
 
-    const boxenOptions = {
-        padding: 1,
-        margin: 1,
-        borderStyle: "round",
-        borderColor: "#800080"
+    if( printLyrics ){
+        
+        const message = chalk.white.bold(text) 
+    
+        const boxenOptions = {
+            padding: 1,
+            margin: 1,
+            borderStyle: "round",
+            borderColor: "#800080"
+        }
+        
+
+        LYRICS.forEach( (stanza, index ) => {
+            setTimeout( ()=> {
+                console.log( boxen( stanza, boxenOptions ) )
+            }, 1500 * index )
+           
+        })
+       
+
+    } else {
+
+        const message = chalk.white.bold(text) 
+    
+        const boxenOptions = {
+            padding: 1,
+            margin: 1,
+            borderStyle: "round",
+            borderColor: "#800080"
+        }
+        
+        const msgBox = boxen( message, boxenOptions )
+        
+        console.log(msgBox)
     }
-       
-    const msgBox = boxen( message, boxenOptions )
-       
-    console.log(msgBox)
 
 });
 
